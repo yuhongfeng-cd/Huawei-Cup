@@ -1,0 +1,59 @@
+# 新建预测结果
+system_pre_3 = pd.DataFrame(columns=system.columns)
+system_pre_3['时间'] = [i for i in range(2010, 2101)]
+
+for i in range(system_pre_3.shape[0]):
+    t = system_pre_3.loc[i, ['时间']][0] # 获取第i个时间
+    system_pre_3.loc[i, ['常驻人口总量']] = predict_p.subs(x, t)
+    system_pre_3.loc[i, ['区域生产总值']] = predict_gdp.subs(x, t)
+    system_pre_3.loc[i, ['一次能源中化石的能源消费量']] = predict_EV1.subs(x, t)
+    system_pre_3.loc[i, ['一次能源中非化石的能源消费量']] = predict_EV2.subs(x, t)
+    system_pre_3.loc[i, ['二次能源的能源消费量']] = predict_EV3.subs(x, t)
+    system_pre_3.loc[i, ['化石能源发电的能源消费量']] = predict_EV4.subs(x, t)
+    system_pre_3.loc[i, ['非化石能源发电的能源消费量']] = predict_EV5.subs(x, t)
+    system_pre_3.loc[i, ['农林消费部门的碳排放量']] = predict_CO2D1.subs(x, t)
+    system_pre_3.loc[i, ['工业消费部门的碳排放量']] = predict_CO2D2.subs(x, t)
+    system_pre_3.loc[i, ['交通消费部门的碳排放量']] = predict_CO2D3.subs(x, t)
+    system_pre_3.loc[i, ['建筑消费部门的碳排放量']] = predict_CO2D4.subs(x, t)
+    system_pre_3.loc[i, ['居民生活消费部门的碳排放量']] = predict_CO2D5.subs(x, t)
+    system_pre_3.loc[i, ['能源供应部门的碳排放量']] = predict_CO2D6.subs(x, t)
+    system_pre_3.loc[i, ['碳排放量']] = predict_CO2.subs(x, t)
+system_pre_3['能源消费量'] = system_pre_3['一次能源中化石的能源消费量'] + system_pre_3['一次能源中非化石的能源消费量'] + system_pre_3['二次能源的能源消费量'] 
+
+
+time = [i for i in range(2020, 2101)]
+goal_3 = pd.DataFrame({'时间' : time})
+goal_3['常驻人口总量'] = system_pre_3['常驻人口总量']
+goal_3['区域生产总值'] = system_pre_3['区域生产总值']
+goal_3['能源消费量'] = system_pre_3['能源消费量']
+goal_3['一次能源中化石的能源消费量'] = 99
+goal_3['一次能源中非化石的能源消费量'] = 99
+goal_3['二次能源的能源消费量'] = 99
+goal_3['化石能源发电的能源消费量'] = 99
+goal_3['非化石能源发电的能源消费量'] = 99
+goal_3['碳排放量'] = 99
+for i in time:
+    if i == 2020:
+        goal_3.loc[goal_3['时间']==i, ['一次能源中化石的能源消费量']] = system.loc[system['时间']==i, ['一次能源中化石的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['一次能源中非化石的能源消费量']] = system.loc[system['时间']==i, ['一次能源中非化石的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['二次能源的能源消费量']] = system.loc[system['时间']==i, ['二次能源的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['化石能源发电的能源消费量']] = system.loc[system['时间']==i, ['化石能源发电的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['非化石能源发电的能源消费量']] = system.loc[system['时间']==i, ['非化石能源发电的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['碳排放量']] = system.loc[system['时间']==i, ['碳排放量']].values[0]
+    else:
+        goal_3.loc[goal_3['时间']==i, ['一次能源中化石的能源消费量']] = system_pre_3.loc[system_pre_3['时间']==i, ['一次能源中化石的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['一次能源中非化石的能源消费量']] = system_pre_3.loc[system_pre_3['时间']==i, ['一次能源中非化石的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['二次能源的能源消费量']] = system_pre_3.loc[system_pre_3['时间']==i, ['二次能源的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['化石能源发电的能源消费量']] = system_pre_3.loc[system_pre_3['时间']==i, ['化石能源发电的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['非化石能源发电的能源消费量']] = system_pre_3.loc[system_pre_3['时间']==i, ['非化石能源发电的能源消费量']].values[0]
+        goal_3.loc[goal_3['时间']==i, ['碳排放量']] = system_pre_3.loc[system_pre_3['时间']==i, ['碳排放量']].values[0]
+goal_3['能源利用效率'] = goal_3['碳排放量'] / \
+                        (goal_3['一次能源中化石的能源消费量'] + \
+                        goal_3['一次能源中非化石的能源消费量'] + \
+                        goal_3['二次能源的能源消费量'])
+goal_3['非化石能源消费比重'] = (goal_3['一次能源中非化石的能源消费量'] + goal_3['二次能源的能源消费量']) / \
+                            (goal_3['一次能源中化石的能源消费量'] + goal_3['一次能源中非化石的能源消费量'] + goal_3['二次能源的能源消费量'] )
+goal_3.drop(columns=['一次能源中化石的能源消费量', '一次能源中非化石的能源消费量',
+       '二次能源的能源消费量', '化石能源发电的能源消费量', '非化石能源发电的能源消费量',], inplace=True)
+goal_3.to_csv(r"E:\参加点比赛\数模研赛\results\T3\情景3目标值.csv", encoding='utf-8-sig', index=False)
+goal_3.head(2)
